@@ -1,0 +1,11 @@
+build/*
+python3venv/*
+python3mvenv/*
+python36venv/*
+mpkAllocatorV2/*
+__pycache__/*
+cpython/*
+venv18/*
+*.err
+*.out
+.idea/

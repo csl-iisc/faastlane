@@ -1,0 +1,70 @@
+service: faastlane-finra-100
+package:
+    individually: false
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: python3.6
+  stage: dev
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:*
+        - lambda:InvokeFunction
+        - rekognition:IndexFaces
+      Resource:
+       Fn::Join:
+         - ""
+         - - "arn:aws:s3:::"
+           - ${self:provider.environment.BUCKET}
+           - "/*"
+
+  environment:
+    BUCKET: faas-iisc
+    FOLDER: video-processing
+
+functions:
+  SceneChange:
+    handler: scenechange.handle
+    timeout: 28
+    events:
+      - http:
+          path: SceneChange
+          method: get
+
+  Draw:
+    handler: drawbox.handle
+    timeout: 28
+    events:
+      - http:
+          path: Draw
+          method: get
+
+  Recognize:
+    handler: facialrecognition.handle
+    timeout: 28
+    events:
+      - http:
+          path: Recognize
+          method: get
+
+plugins:
+  - serverless-python-requirements
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    zip: true
+    slim: false
+    noDeploy:
+      - boto3
+      - botocore
+      - docutils
+      - jmespath
+      - pip
+      - python-dateutil
+      - s3transfer
+      - setuptools
+      - six
+      - tensorboard

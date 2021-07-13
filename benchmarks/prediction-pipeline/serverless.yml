@@ -1,0 +1,78 @@
+service: prediction-pipeline
+package:
+    individually: true
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: python3.6
+  stage: dev
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource:
+       Fn::Join:
+         - ""
+         - - "arn:aws:s3:::"
+           - ${self:provider.environment.BUCKET}
+           - "/*"
+
+  environment:
+    BUCKET: faas-iisc
+    FOLDER: prediction-pipeline
+    IMAGE: image.jpg
+    RESIZE_IMAGE: resize-image.npy
+    MODEL: mobilenet_v2_1.0_224_frozen.pb
+
+functions:
+  resize:
+    handler: resize.resizeHandler
+    package:
+        include:
+            - data/image.jpg
+    timeout: 30
+    events:
+      - http:
+          path: resize
+          method: get
+
+
+  predict:
+    handler: predict.predictHandler
+    package:
+        include:
+            - data/
+    timeout: 30
+    events:
+      - http:
+          path: predict
+          method: post 
+
+  render:
+    handler: render.renderHandler
+    timeout: 30
+    events:
+      - http:
+          path: render
+          method: post
+
+plugins:
+  - serverless-python-requirements
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    zip: true
+    slim: true
+    noDeploy:
+      - boto3
+      - botocore
+      - docutils
+      - jmespath
+      - pip
+      - python-dateutil
+      - s3transfer
+      - setuptools
+      - six
+      - tensorboard

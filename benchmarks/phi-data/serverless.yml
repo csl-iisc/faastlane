@@ -1,0 +1,50 @@
+service: phi-data
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: python3.6
+  stage: dev
+
+functions:
+  identifyphi:
+    handler: identifyphi.main
+    timeout: 28
+    events:
+      - http:
+          path: identifyphi 
+          method: get
+
+
+  anonymize:
+    handler: anonymize.main
+    timeout: 28
+    events:
+      - http:
+          path: anonymize
+          method: post 
+
+  deidentify:
+    handler: deidentify.main
+    timeout: 28
+    events:
+      - http:
+          path: deidentify
+          method: post
+
+
+  analytics:
+    handler: analytics.main
+    timeout: 28
+    events:
+      - http:
+          path: analytics 
+          method: post
+
+plugins:
+  - serverless-python-requirements
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    zip: true
+    slim: true

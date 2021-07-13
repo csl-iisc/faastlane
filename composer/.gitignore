@@ -1,0 +1,8 @@
+__pycache__/
+megaFunction.py
+
+#temp working directory
+.faastlane/
+
+# scratch space for data
+data/

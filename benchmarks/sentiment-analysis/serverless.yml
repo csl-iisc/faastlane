@@ -1,0 +1,48 @@
+service: sentiment-analysis
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: python3.6
+  stage: dev
+
+functions:
+  readcsv:
+    handler: readcsv.main
+    timeout: 27
+    events:
+      - http:
+          path: readcsv 
+          method: get
+
+  sentiment:
+    handler: sentiment.main
+    timeout: 27
+    events:
+      - http:
+          path: sentiment
+          method: post 
+
+  writetoDB:
+    handler: writetoDB.main
+    timeout: 27
+    events:
+      - http:
+          path: writetoDB
+          method: post
+
+  publishsns:
+    handler: publishsns.main
+    timeout: 27
+    events:
+      - http:
+          path: publishsns 
+          method: post
+
+plugins:
+  - serverless-python-requirements
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    zip: true
+    slim: true
